@@ -1,7 +1,56 @@
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { ArrowDown, Github, Linkedin, Mail } from "lucide-react";
 import { MagneticButton } from "./primitives";
 import { profile, stats } from "@/data/portfolio";
+
+function TypewriterTitle({ titles }: { titles: string[] }) {
+  const [index, setIndex] = useState(0);
+  const [text, setText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = titles[index] ?? "";
+    const doneTyping = text === current;
+    const doneDeleting = text.length === 0;
+
+    let delay = deleting ? 36 : 78;
+    if (doneTyping && !deleting) delay = 1600;
+    if (doneDeleting && deleting) delay = 320;
+
+    const timer = window.setTimeout(() => {
+      if (!deleting && !doneTyping) {
+        setText(current.slice(0, text.length + 1));
+        return;
+      }
+
+      if (!deleting && doneTyping) {
+        setDeleting(true);
+        return;
+      }
+
+      if (deleting && !doneDeleting) {
+        setText(current.slice(0, text.length - 1));
+        return;
+      }
+
+      setDeleting(false);
+      setIndex((i) => (i + 1) % titles.length);
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [deleting, index, text, titles]);
+
+  return (
+    <span className="block text-primary glow-text" aria-live="polite">
+      {text}
+      <span
+        className="ml-0.5 inline-block h-[0.85em] w-[0.08em] translate-y-[0.08em] bg-primary align-baseline"
+        style={{ animation: "pulse-dot 1s steps(1) infinite" }}
+      />
+    </span>
+  );
+}
 
 export function Hero() {
   return (
@@ -39,7 +88,7 @@ export function Hero() {
           className="mt-8 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl"
         >
           {profile.name}
-          <span className="block text-primary glow-text">{profile.title}</span>
+          <TypewriterTitle titles={profile.titles} />
         </motion.h1>
 
         <motion.p

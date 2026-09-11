@@ -1,6 +1,14 @@
 export const profile = {
   name: "Abdulrehman Majid",
   title: "Full Stack Developer",
+  titles: [
+    "Full Stack Developer",
+    "Laravel Developer",
+    "React.js Developer",
+    "Next.js Developer",
+    "PHP Developer",
+    "API Developer",
+  ],
   tagline:
     "Engineering scalable, high-performance web applications, auction marketplaces, and complex eCommerce architectures with Laravel, Next.js, and React.",
   bio: "Full Stack Developer with 2 years of professional experience building production-ready web apps across enterprise eCommerce, auction engines, subscription systems, and property platforms. Currently Full Stack Developer at Acusync Technologies.",

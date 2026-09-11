@@ -62,6 +62,7 @@ export function MagneticButton({
   onClick,
   type = "button",
   external,
+  disabled,
 }: {
   children: ReactNode;
   href?: string;
@@ -70,6 +71,7 @@ export function MagneticButton({
   onClick?: () => void;
   type?: "button" | "submit";
   external?: boolean;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -79,6 +81,7 @@ export function MagneticButton({
     variant === "solid"
       ? "bg-primary text-primary-foreground hover:shadow-[0_0_35px_oklch(0.89_0.29_138/0.5)]"
       : "border border-primary/40 text-primary hover:bg-primary/10 hover:shadow-[0_0_25px_oklch(0.89_0.29_138/0.25)]",
+    disabled && "pointer-events-none opacity-60",
     className,
   );
 
@@ -121,6 +124,7 @@ export function MagneticButton({
       ref={ref as React.RefObject<HTMLButtonElement>}
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={base}
       style={style}
       {...handlers}
