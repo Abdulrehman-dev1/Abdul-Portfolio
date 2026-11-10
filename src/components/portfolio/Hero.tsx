@@ -5,20 +5,34 @@ import { MagneticButton } from "./primitives";
 import { profile, stats } from "@/data/portfolio";
 
 function TypewriterTitle({ titles }: { titles: string[] }) {
+  const initialTitle = titles[0] ?? "";
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState("");
+  const [text, setText] = useState(initialTitle);
   const [deleting, setDeleting] = useState(false);
+  const [paused, setPaused] = useState(true);
 
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setText(initialTitle);
+      return;
+    }
+
     const current = titles[index] ?? "";
     const doneTyping = text === current;
     const doneDeleting = text.length === 0;
 
     let delay = deleting ? 36 : 78;
-    if (doneTyping && !deleting) delay = 1600;
-    if (doneDeleting && deleting) delay = 320;
+    if (paused) delay = 1600;
+    else if (doneTyping && !deleting) delay = 1600;
+    else if (doneDeleting && deleting) delay = 320;
 
     const timer = window.setTimeout(() => {
+      if (paused) {
+        setPaused(false);
+        setDeleting(true);
+        return;
+      }
+
       if (!deleting && !doneTyping) {
         setText(current.slice(0, text.length + 1));
         return;
@@ -39,15 +53,18 @@ function TypewriterTitle({ titles }: { titles: string[] }) {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [deleting, index, text, titles]);
+  }, [deleting, index, initialTitle, paused, text, titles]);
 
   return (
-    <span className="block text-primary glow-text" aria-live="polite">
-      {text}
-      <span
-        className="ml-0.5 inline-block h-[0.85em] w-[0.08em] translate-y-[0.08em] bg-primary align-baseline"
-        style={{ animation: "pulse-dot 1s steps(1) infinite" }}
-      />
+    <span className="block min-h-[1.15em] text-primary glow-text">
+      <span className="sr-only">{initialTitle}</span>
+      <span aria-hidden="true">
+        {text}
+        <span
+          className="ml-0.5 inline-block h-[0.85em] w-[0.08em] translate-y-[0.08em] bg-primary align-baseline"
+          style={{ animation: "pulse-dot 1s steps(1) infinite" }}
+        />
+      </span>
     </span>
   );
 }

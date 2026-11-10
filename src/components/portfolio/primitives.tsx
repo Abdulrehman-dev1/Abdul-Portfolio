@@ -1,4 +1,4 @@
-import { motion, useInView } from "motion/react";
+import { motion, useInView, useMotionValue, useSpring } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +87,7 @@ export function MagneticButton({
 
   const handlers = {
     onMouseMove: (e: React.MouseEvent) => {
+      if (!window.matchMedia("(pointer: fine)").matches) return;
       const el = ref.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
@@ -135,45 +136,37 @@ export function MagneticButton({
 }
 
 export function GlowCursor() {
-  const [pos, setPos] = useState({ x: -400, y: -400 });
-  const [fine, setFine] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+  const rawX = useMotionValue(-400);
+  const rawY = useMotionValue(-400);
+  const x = useSpring(rawX, { stiffness: 180, damping: 28, mass: 0.5 });
+  const y = useSpring(rawY, { stiffness: 180, damping: 28, mass: 0.5 });
 
   useEffect(() => {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    setFine(true);
-    const onMove = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!fine || reduced) return;
 
-  if (!fine) return null;
+    setEnabled(true);
+    const onMove = (e: MouseEvent) => {
+      rawX.set(e.clientX - 208);
+      rawY.set(e.clientY - 208);
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [rawX, rawY]);
+
+  if (!enabled) return null;
 
   return (
-    <div
+    <motion.div
       aria-hidden
-      className="pointer-events-none fixed z-0 h-[26rem] w-[26rem] rounded-full opacity-60 blur-[90px]"
+      className="pointer-events-none fixed left-0 top-0 z-0 h-[26rem] w-[26rem] rounded-full opacity-60 blur-[90px]"
       style={{
-        left: pos.x - 208,
-        top: pos.y - 208,
-        background:
-          "radial-gradient(circle, oklch(0.89 0.29 138 / 0.16), transparent 65%)",
-        transition: "left 200ms ease-out, top 200ms ease-out",
+        x,
+        y,
+        background: "radial-gradient(circle, oklch(0.89 0.29 138 / 0.16), transparent 65%)",
       }}
     />
-  );
-}
-
-export function Pill({ children, active }: { children: ReactNode; active?: boolean }) {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-3 py-1 font-mono text-xs transition-colors",
-        active
-          ? "border-primary/60 bg-primary/15 text-primary"
-          : "border-primary/15 bg-surface-2/60 text-muted-foreground hover:border-primary/40 hover:text-primary",
-      )}
-    >
-      {children}
-    </span>
   );
 }

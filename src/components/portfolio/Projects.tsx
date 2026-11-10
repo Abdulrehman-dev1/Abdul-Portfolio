@@ -1,28 +1,12 @@
-import { useMemo, useState } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { motion, useMotionTemplate, useMotionValue, useSpring } from "motion/react";
+import { ArrowRight, ArrowUpRight, Images } from "lucide-react";
 import { Reveal, SectionHeading } from "./primitives";
-import { projectFilters, projects } from "@/data/portfolio";
-import { cn } from "@/lib/utils";
+import { projects, type FeaturedProject } from "@/data/projects";
 
-const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const layoutSpring = { type: "spring" as const, stiffness: 260, damping: 30, mass: 0.8 };
 const tiltSpring = { stiffness: 220, damping: 22, mass: 0.4 };
 
-function ProjectCard({
-  project,
-  index,
-}: {
-  project: (typeof projects)[number];
-  index: number;
-}) {
+function ProjectCard({ project, index }: { project: FeaturedProject; index: number }) {
   const rotateX = useSpring(0, tiltSpring);
   const rotateY = useSpring(0, tiltSpring);
   const glareX = useMotionValue(50);
@@ -30,31 +14,15 @@ function ProjectCard({
   const glare = useMotionTemplate`radial-gradient(420px circle at ${glareX}% ${glareY}%, oklch(0.89 0.29 138 / 0.14), transparent 55%)`;
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 28, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{
-        opacity: 0,
-        y: -12,
-        scale: 0.97,
-        transition: { duration: 0.22, ease: easeOut },
-      }}
-      transition={{
-        layout: layoutSpring,
-        opacity: { duration: 0.4, delay: index * 0.05, ease: easeOut },
-        y: { ...layoutSpring, delay: index * 0.05 },
-        scale: { ...layoutSpring, delay: index * 0.05 },
-      }}
-      className="h-full"
-    >
+    <Reveal delay={index * 0.06} className="h-full">
       <motion.article
         onMouseMove={(e) => {
+          if (!window.matchMedia("(pointer: fine)").matches) return;
           const r = e.currentTarget.getBoundingClientRect();
           const px = (e.clientX - r.left) / r.width;
           const py = (e.clientY - r.top) / r.height;
-          rotateX.set((py - 0.5) * -10);
-          rotateY.set((px - 0.5) * 10);
+          rotateX.set((py - 0.5) * -8);
+          rotateY.set((px - 0.5) * 8);
           glareX.set(px * 100);
           glareY.set(py * 100);
         }}
@@ -81,53 +49,64 @@ function ProjectCard({
         />
 
         <div className="relative flex items-start justify-between gap-4">
-          <h3 className="text-lg font-semibold leading-snug text-foreground transition-colors duration-300 group-hover:text-primary">
-            {project.name}
+          <h3 className="text-xl font-semibold leading-snug text-foreground transition-colors duration-300 group-hover:text-primary">
+            {project.title}
           </h3>
-          <a
-            href={project.link}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label={`Open ${project.name}`}
-            className="rounded-md border border-primary/20 p-2 text-primary transition-all duration-300 group-hover:border-primary/60 group-hover:shadow-[0_0_18px_oklch(0.89_0.29_138/0.3)]"
-          >
-            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
+          <span className="font-mono text-xs text-primary/60">
+            {String(index + 1).padStart(2, "0")}
+          </span>
         </div>
 
         <p className="relative mt-2 font-mono text-xs text-primary/80">{project.role}</p>
-        {project.status ? (
-          <span className="relative mt-3 inline-flex w-fit rounded-full border border-primary/25 bg-primary/10 px-2.5 py-0.5 font-mono text-[10px] tracking-wide text-primary uppercase">
-            {project.status}
-          </span>
-        ) : null}
 
         <p className="relative mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">
-          {project.details}
+          {project.cardDescription}
         </p>
 
         <div className="relative mt-5 flex flex-wrap gap-2 border-t border-primary/10 pt-4">
-          {project.stack.map((s) => (
+          {project.techStack.map((tech) => (
             <span
-              key={s}
-              className="rounded border border-primary/15 bg-surface-2/70 px-2 py-1 font-mono text-[11px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/25"
+              key={tech}
+              className="rounded border border-primary/15 bg-surface-2/70 px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors duration-300 group-hover:border-primary/25"
             >
-              {s}
+              {tech}
             </span>
           ))}
         </div>
+
+        <div className="relative mt-6 flex flex-wrap items-center gap-3 pt-1">
+          <Link
+            to="/projects/$slug"
+            params={{ slug: project.slug }}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-mono text-xs font-semibold text-primary-foreground transition-shadow hover:shadow-[0_0_24px_oklch(0.89_0.29_138/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            View Details
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+
+          {project.liveUrl ? (
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 rounded-md border border-primary/35 px-4 py-2 font-mono text-xs font-semibold text-primary transition-colors hover:border-primary/70 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              Live Site
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 font-mono text-[11px] text-primary">
+              <Images className="h-3.5 w-3.5" />
+              Screenshots available
+            </span>
+          )}
+        </div>
       </motion.article>
-    </motion.div>
+    </Reveal>
   );
 }
 
 export function Projects() {
-  const [filter, setFilter] = useState("All");
-  const filtered = useMemo(
-    () => (filter === "All" ? projects : projects.filter((p) => p.tags.includes(filter))),
-    [filter],
-  );
-
   return (
     <section id="projects" className="relative border-t border-primary/10 py-24">
       <div aria-hidden className="pointer-events-none absolute inset-0 mesh-bg opacity-60" />
@@ -135,45 +114,14 @@ export function Projects() {
         <SectionHeading
           index="03"
           title="Featured Projects"
-          subtitle="Marketplaces, auction engines, subscription systems, and eCommerce platforms shipped to production."
+          subtitle="Production marketplaces, multi-subdomain storefronts, and fractional real estate systems."
         />
 
-        <Reveal>
-          <div className="mb-10 flex flex-wrap gap-2">
-            {projectFilters.map((f) => {
-              const active = filter === f;
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={cn(
-                    "relative rounded-full border px-4 py-1.5 font-mono text-xs transition-colors duration-300",
-                    active
-                      ? "border-primary text-primary"
-                      : "border-primary/15 text-muted-foreground hover:border-primary/40 hover:text-primary",
-                  )}
-                >
-                  {active ? (
-                    <motion.span
-                      layoutId="project-filter-pill"
-                      className="absolute inset-0 -z-10 rounded-full bg-primary/15 shadow-[0_0_18px_oklch(0.89_0.29_138/0.25)]"
-                      transition={layoutSpring}
-                    />
-                  ) : null}
-                  {f}
-                </button>
-              );
-            })}
-          </div>
-        </Reveal>
-
-        <motion.div layout transition={layoutSpring} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {filtered.map((p, i) => (
-              <ProjectCard key={p.name} project={p} index={i} />
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        <div className="grid gap-6 md:grid-cols-2">
+          {projects.map((project, index) => (
+            <ProjectCard key={project.slug} project={project} index={index} />
+          ))}
+        </div>
       </div>
     </section>
   );

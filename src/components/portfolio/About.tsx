@@ -1,8 +1,29 @@
-import { Briefcase, GraduationCap, MapPin } from "lucide-react";
+import { Briefcase, GraduationCap, History, MapPin } from "lucide-react";
 import { Reveal, SectionHeading } from "./primitives";
-import { profile } from "@/data/portfolio";
+import { experience, profile } from "@/data/portfolio";
 
 export function About() {
+  const infoCards = [
+    ...experience.map((item) => ({
+      Icon: item.current ? Briefcase : History,
+      label: item.current ? "Current Role" : "Previous Role",
+      value: `${item.role} · ${item.company}`,
+      meta: item.details ? `${item.period} · ${item.details}` : item.period,
+    })),
+    {
+      Icon: GraduationCap,
+      label: "Education",
+      value: profile.education,
+      meta: undefined,
+    },
+    {
+      Icon: MapPin,
+      label: "Based in",
+      value: profile.location,
+      meta: undefined,
+    },
+  ];
+
   return (
     <section id="about" className="relative border-t border-primary/10 py-24">
       <div className="mx-auto max-w-6xl px-5">
@@ -21,14 +42,10 @@ export function About() {
           </Reveal>
 
           <div className="grid gap-4">
-            {[
-              { Icon: Briefcase, label: "Current Role", value: `Full Stack Developer · ${profile.company}` },
-              { Icon: GraduationCap, label: "Education", value: profile.education },
-              { Icon: MapPin, label: "Based in", value: profile.location },
-            ].map(({ Icon, label, value }, i) => (
-              <Reveal key={label} delay={i * 0.1}>
+            {infoCards.map(({ Icon, label, value, meta }, i) => (
+              <Reveal key={`${label}-${value}`} delay={i * 0.08}>
                 <div className="glass flex gap-4 rounded-xl p-5 transition-all hover:-translate-y-1 hover:border-primary/40">
-                  <span className="mt-0.5 rounded-md border border-primary/25 bg-primary/10 p-2 text-primary">
+                  <span className="mt-0.5 h-fit rounded-md border border-primary/25 bg-primary/10 p-2 text-primary">
                     <Icon className="h-4 w-4" />
                   </span>
                   <div>
@@ -36,6 +53,9 @@ export function About() {
                       {label}
                     </p>
                     <p className="mt-1 text-sm text-foreground">{value}</p>
+                    {meta ? (
+                      <p className="mt-1 font-mono text-xs text-muted-foreground">{meta}</p>
+                    ) : null}
                   </div>
                 </div>
               </Reveal>
