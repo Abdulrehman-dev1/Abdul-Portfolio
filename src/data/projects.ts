@@ -45,8 +45,15 @@ export type ProjectScreenshot = {
   caption: string;
 };
 
+export type ProjectCompany = "XpertBid" | "Acusync Technologies";
+
+export const projectFilterTabs = ["All", "XpertBid", "Acusync Technologies"] as const;
+export type ProjectFilterTab = (typeof projectFilterTabs)[number];
+
 export type FeaturedProject = {
   slug: string;
+  company: ProjectCompany;
+  status?: string;
   title: string;
   cardDescription: string;
   role: string;
@@ -62,7 +69,21 @@ export type FeaturedProject = {
   screenshots?: ProjectScreenshot[];
 };
 
-const rawTokenizationScreenshots: Omit<ProjectScreenshot, "src">[] = [
+function buildScreenshots(
+  folder: string,
+  items: Omit<ProjectScreenshot, "src">[],
+): ProjectScreenshot[] {
+  return [...items]
+    .sort((a, b) =>
+      a.filename.localeCompare(b.filename, undefined, { numeric: true, sensitivity: "base" }),
+    )
+    .map((item) => ({
+      ...item,
+      src: `/assets/images/${folder}/${item.filename}`,
+    }));
+}
+
+const tokenizationScreenshots = buildScreenshots("tokenization_images", [
   {
     filename: "1.png",
     alt: "Tokenization landing page hero section showing 'Invest Smarter. Own Real Assets Digitally.' with navigation and mobile app store badges",
@@ -103,20 +124,91 @@ const rawTokenizationScreenshots: Omit<ProjectScreenshot, "src">[] = [
     alt: "Tokenization admin dashboard displaying platform KPI cards, weekly investment growth chart, top projects chart, and management navigation",
     caption: "Admin Panel Dashboard",
   },
-];
+]);
 
-const tokenizationScreenshots: ProjectScreenshot[] = [...rawTokenizationScreenshots]
-  .sort((a, b) =>
-    a.filename.localeCompare(b.filename, undefined, { numeric: true, sensitivity: "base" }),
-  )
-  .map((item) => ({
-    ...item,
-    src: `/assets/images/tokenization_images/${item.filename}`,
-  }));
+const emiratiScreenshots = buildScreenshots("emirati_images", [
+  {
+    filename: "1.png",
+    alt: "Emirati Coffee – Coffee Subscription Store navigation bar and Colombia coffee catalog header",
+    caption: "Storefront & Catalog Header",
+  },
+  {
+    filename: "2.png",
+    alt: "Emirati Coffee – Coffee Subscription Store personalized monthly subscription plan step with grind type selection",
+    caption: "Subscription Grind Selection",
+  },
+  {
+    filename: "3.png",
+    alt: "Emirati Coffee – Coffee Subscription Store product cards with quantity selector and 250g, 500g, and 1kg weight options",
+    caption: "Product & Size Selection",
+  },
+  {
+    filename: "4.png",
+    alt: "Emirati Coffee – Coffee Subscription Store product modal comparing One Time Order and Subscribe & Save subscription benefits",
+    caption: "One-Time vs. Subscribe & Save",
+  },
+  {
+    filename: "5.png",
+    alt: "Emirati Coffee – Coffee Subscription Store guest checkout summary with Stripe and Cash on Delivery payment options and coupon field",
+    caption: "Checkout & Payment Options",
+  },
+]);
+
+const bisonScreenshots = buildScreenshots("bison_images", [
+  {
+    filename: "1.png",
+    alt: "Bison TradeWorks – B2B Sourcing Platform hero section titled 'Manufacturing & goods, sourced from Mexico.' with EN/ES language switcher",
+    caption: "Bilingual Hero & Value Pillars",
+  },
+  {
+    filename: "2.png",
+    alt: "Bison TradeWorks – B2B Sourcing Platform four-step buyer workflow titled 'From your list to your dock'",
+    caption: "Four-Step Sourcing Workflow",
+  },
+  {
+    filename: "3.png",
+    alt: "Bison TradeWorks – B2B Sourcing Platform manufacturer partnership section titled 'Sell to one buyer, not a dozen'",
+    caption: "Manufacturer Partnership Overview",
+  },
+]);
+
+const mrBarniScreenshots = buildScreenshots("mrbarni_images", [
+  {
+    filename: "1.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace hero section with PWA install banner and Dubai property search bar",
+    caption: "Marketplace Hero & PWA Install Prompt",
+  },
+  {
+    filename: "2.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace latest properties grid displaying For Sale and For Rent cards with AED pricing and verified badges",
+    caption: "Latest Property Listings Grid",
+  },
+  {
+    filename: "3.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace filtered search results with emirate, AED price range, and bedroom filters alongside RERA verified badges",
+    caption: "Filtered Search & RERA Verification",
+  },
+  {
+    filename: "4.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace account registration page with signup form and platform highlights",
+    caption: "Account Registration & Onboarding",
+  },
+  {
+    filename: "5.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace super admin dashboard showing KPI counts, moderation queue, and user role breakdown",
+    caption: "Admin KPI Dashboard & Moderation Queue",
+  },
+  {
+    filename: "6.png",
+    alt: "Mr. Barni – UAE Real Estate Marketplace admin analytics showing listings by status, inquiries pipeline, and 30-day activity charts",
+    caption: "Listings & Inquiries 30-Day Analytics",
+  },
+]);
 
 export const projects: FeaturedProject[] = [
   {
     slug: "xpertbid",
+    company: "XpertBid",
     title: "XpertBid – Marketplace & Auctions",
     cardDescription:
       "A multi-module marketplace combining live auctions, standard and business product sales, and a reverse marketplace, with a role-based admin panel and automated email and WhatsApp notifications.",
@@ -246,6 +338,7 @@ export const projects: FeaturedProject[] = [
   },
   {
     slug: "xpertproperty",
+    company: "XpertBid",
     title: "XpertProperty – Property Marketplace",
     cardDescription:
       "A standalone property frontend built on the XpertBid backend, with login that stays in sync with the main site.",
@@ -279,6 +372,7 @@ export const projects: FeaturedProject[] = [
   },
   {
     slug: "xpertbuild",
+    company: "XpertBid",
     title: "XpertBuild – Home Renovation & Builders",
     cardDescription:
       "A standalone frontend for home renovation and builder services, sharing accounts and sessions with the main XpertBid platform.",
@@ -312,6 +406,7 @@ export const projects: FeaturedProject[] = [
   },
   {
     slug: "tokenization",
+    company: "XpertBid",
     title: "Tokenization – Fractional Real Estate Platform",
     cardDescription:
       "A fractional real estate platform where verified investors buy digital tokens of high-value properties, earn monthly rental yield, and trade tokens peer to peer on a secondary marketplace.",
@@ -416,6 +511,420 @@ export const projects: FeaturedProject[] = [
       ],
     },
     screenshots: tokenizationScreenshots,
+  },
+  {
+    slug: "adxc",
+    company: "Acusync Technologies",
+    title: "ADXC – Abu Dhabi Extreme Championship",
+    cardDescription:
+      "The official website of the Abu Dhabi Extreme Championship, a grappling and combat sports event. I built key UI sections of the site, including the Chairman’s Message and the Athletes page.",
+    role: "Frontend Developer (UI)",
+    techStack: ["Laravel (existing codebase)"],
+    integrations: [],
+    liveUrl: "https://adxcworld.com/",
+    liveLabel: "adxcworld.com",
+    overview:
+      "ADXC is the official website of the Abu Dhabi Extreme Championship, a grappling tournament held across the UAE and abroad. The site covers events, athletes, news, rules and judging criteria, ticketing, and live-stream links. The site runs on Laravel, and my work focused on the user interface.",
+    featureSections: [
+      {
+        heading: "What I built",
+        bullets: [
+          "Chairman’s Message section on the home page, presenting the championship’s vision alongside the chairman’s portrait.",
+          "Athletes page showcasing the competing athletes.",
+          "Responsive UI work to match the site’s existing design.",
+        ],
+      },
+    ],
+    highlights: [],
+  },
+  {
+    slug: "adma",
+    company: "Acusync Technologies",
+    title: "ADMA – Abu Dhabi Martial Arts Academy",
+    cardDescription:
+      "A martial arts academy platform for the UAE with membership purchasing and a checkout flow supporting Google Pay and MoMo Pay.",
+    role: "Full Stack Developer",
+    techStack: ["Laravel", "MySQL"],
+    integrations: ["Google Pay", "MoMo Pay"],
+    liveUrl: "https://www.adma.academy/",
+    liveLabel: "adma.academy",
+    overview:
+      "ADMA is a martial arts academy with multiple locations across Abu Dhabi, Al Ain, and Dubai, offering Brazilian Jiu-Jitsu, Muay Thai, MMA, wrestling, and boxing. Visitors can explore the academy, book a trial class, and purchase memberships online. I built the project from the ground up on Laravel and MySQL.",
+    featureSections: [
+      {
+        heading: "What I built",
+        bullets: [
+          "UI for the public website and the member-facing pages.",
+          "Membership module: members choose a plan and purchase a membership online.",
+          "Checkout flow with Google Pay and MoMo Pay payment options.",
+          "Database design and backend logic in MySQL.",
+        ],
+      },
+    ],
+    highlights: [],
+  },
+  {
+    slug: "emirati-coffee",
+    company: "Acusync Technologies",
+    title: "Emirati Coffee – Coffee Subscription Store",
+    cardDescription:
+      "A UAE coffee store with flexible subscriptions. I built the subscription module, guest checkout, and Stripe payments on top of an existing codebase.",
+    role: "Laravel Developer (second developer on an existing codebase)",
+    techStack: ["Laravel", "MySQL"],
+    integrations: ["Stripe"],
+    overview:
+      "Emirati Coffee is a UAE-based online coffee store. I joined as the second developer, working inside code that another developer had started, so I had to read, understand, and extend an existing system. The UI was built by someone else, and my work covered the backend features below.",
+    featureSections: [
+      {
+        heading: "What I built",
+        groups: [
+          {
+            title: "Subscription module",
+            bullets: [
+              "Subscription plans of 3, 6, and 12 months.",
+              "Flexible delivery schedules: a customer can choose how many deliveries they want within a plan, for example 12 weekly deliveries across a 6-month subscription.",
+              "Date and quantity calculations that generate each delivery date and the amount of coffee per delivery.",
+            ],
+          },
+          {
+            title: "Checkout",
+            bullets: [
+              "Guest checkout, so customers can buy without creating an account.",
+              "Stripe integration for secure payments.",
+            ],
+          },
+        ],
+      },
+    ],
+    highlights: [],
+    screenshots: emiratiScreenshots,
+  },
+  {
+    slug: "dubai-street-kitties",
+    company: "Acusync Technologies",
+    title: "Dubai Street Kitties – Cat Rescue & Adoption Platform",
+    cardDescription:
+      "A public adoption website and admin portal for a UAE cat sanctuary, with advanced cat filtering, detailed medical profiles, and a full management dashboard.",
+    role: "Full Stack Developer",
+    techStack: [
+      "Laravel 12",
+      "React 18",
+      "Inertia.js",
+      "Tailwind CSS",
+      "Vite",
+      "Headless UI",
+      "Inertia SSR",
+      "Spatie Laravel Permission",
+      "Laravel Sanctum",
+    ],
+    integrations: [],
+    liveUrl: "https://www.dubaistreetkitties.com/",
+    liveLabel: "dubaistreetkitties.com",
+    overview:
+      "Dubai Street Kitties has two parts. The public website lets visitors browse rescue cats, view detailed medical and personality profiles, read about the sanctuary, and send adoption or support inquiries. The admin portal lets sanctuary staff manage cats, photos, medical records and expenses in AED, categories, the gallery, users, and reports.",
+    featureSections: [
+      {
+        heading: "Public website",
+        bullets: [
+          "Home page with sanctuary highlights, the latest available cats, and a pet-sitting section.",
+          "Available Cats page with server-side search and filters for breed, age, gender, vaccination status, personality traits, and compatibility (special needs, good with kids, good for apartments, friendly with dogs), with “Load More” pagination.",
+          "Cat profile with an image gallery slider, health and behavior badges, and a downloadable medical report.",
+          "Gallery with category tabs, adoption and international adoption guides, support and volunteering pages, and a contact page.",
+          "SEO meta tags on every page, and server-side rendering through Inertia SSR.",
+        ],
+      },
+      {
+        heading: "Admin portal",
+        bullets: [
+          "Dashboard showing total, available, adopted, and fostered cats, adoption rate, and total medical costs in AED.",
+          "Full cat management with status tabs, multi-image upload, and drag-and-drop photo reordering.",
+          "Medical records timeline for vet visits, procedures, and vaccinations, with costs.",
+          "Manageable dropdowns: admins add, rename, or delete options such as breeds and traits from the UI, and changes sync to existing records.",
+          "Category and gallery management, with server-side image resizing.",
+          "Reports with status breakdowns and 6-month added-versus-adopted trends.",
+          "Role-based access for admin, volunteer, and adopter roles, plus contact-message and user management.",
+        ],
+      },
+    ],
+    highlights: [],
+  },
+  {
+    slug: "bison-tradeworks",
+    company: "Acusync Technologies",
+    title: "Bison TradeWorks – B2B Sourcing Platform",
+    cardDescription:
+      "A bilingual B2B platform connecting Mexican manufacturers with US and Canadian brands and retailers, with a product catalogue, lead capture, and a full CMS-style admin.",
+    role: "Full Stack Developer",
+    techStack: [
+      "Laravel",
+      "PHP 8.3",
+      "React 18",
+      "Inertia.js",
+      "Vite",
+      "Tailwind CSS",
+      "Headless UI",
+      "MySQL",
+    ],
+    integrations: [],
+    overview:
+      "Bison TradeWorks connects vetted manufacturers in León, Guanajuato (Mexico) with brands and retailers in the US and Canada. The site serves three audiences: brands that need custom contract manufacturing, retailers who want ready-made leather and crafted goods, and manufacturers who want direct access to North American buyers.",
+    featureSections: [
+      {
+        heading: "Public website",
+        bullets: [
+          "Dedicated pages for Brands, Retailers, Manufacturers, About, and Contact, plus intent-based landing routes such as “Request a Quote” and “Become a Partner”.",
+          "Filterable product catalogue by category, with detail pages and multi-image galleries.",
+          "Lead capture: a contact form that adapts its copy to the visitor’s intent, with rate limiting, database storage, and email notifications.",
+          "Bilingual (English/Spanish): database-driven translations with caching and fallback, locale-aware product URLs, and automatic language detection with a live language toggle.",
+        ],
+      },
+      {
+        heading: "Admin panel",
+        bullets: [
+          "Dashboard with new and total submissions and active product counts.",
+          "Product editor with a tab per language, automatic slugs, and a multi-image uploader (up to 12 images, with server-side resizing and WebP conversion).",
+          "Contact submissions CRM with intent and status filters.",
+          "Language and translation manager: add languages, track missing translations, and edit strings side by side.",
+          "Role-based access with four roles and 13 permissions, plus audit logging of admin actions with user, IP, and timestamp.",
+        ],
+      },
+      {
+        heading: "SEO and security",
+        bullets: [
+          "Meta tags, canonical links, Open Graph tags, JSON-LD structured data, a dynamic XML sitemap, and robots.txt.",
+          "Security headers, rate limiting on sensitive routes, and public registration disabled.",
+        ],
+      },
+    ],
+    highlights: [],
+    screenshots: bisonScreenshots,
+  },
+  {
+    slug: "al-salama-training",
+    company: "Acusync Technologies",
+    title: "Al Salama – Training & Event Scheduling System",
+    cardDescription:
+      "A real-time training and event scheduling system for a UAE safety training company, with a live calendar, trainer conflict detection, capacity checks, and expiry tracking.",
+    role: "Full Stack Developer",
+    techStack: [
+      "Next.js 15",
+      "React 19",
+      "Firebase (Authentication and Cloud Firestore)",
+      "Material UI",
+      "Bootstrap",
+    ],
+    integrations: ["Google Places API"],
+    liveUrl: "https://event.alsalama.ae/",
+    liveLabel: "event.alsalama.ae",
+    overview:
+      "Al Salama is a UAE-based corporate training and safety company. This system lets the team manage training sessions, site visits, trainer schedules, training center capacity, courses, and training expirations in one place. Changes appear live for every user through real-time database listeners.",
+    featureSections: [
+      {
+        heading: "Core features",
+        groups: [
+          {
+            title: "Real-time calendar",
+            bullets: [
+              "Month, week, and day views synced live with Firestore.",
+              "Overlapping events are clustered and displayed side by side in the week and day views.",
+              "Color-coded events for site visits, client locations, and Al Salama center sessions.",
+            ],
+          },
+          {
+            title: "Smart booking and conflict detection",
+            bullets: [
+              "Location-aware trainer clash check: a trainer cannot be double-booked, with no buffer between sessions at the same location and a 60-minute travel buffer between different locations.",
+              "Events can include multiple client companies, and the total trainees are validated against the training center’s maximum capacity.",
+              "UAE-restricted Google Places search for client and site-visit locations, with direct Google Maps links in the event view.",
+            ],
+          },
+          {
+            title: "Filtering",
+            bullets: [
+              "Advanced filter drawer by availability, event type (training or site visit), courses, training centers, trainers, and sales managers.",
+            ],
+          },
+          {
+            title: "Expired trainings tracker",
+            bullets: [
+              "Tracks expired trainings based on each course’s validity period, with a live badge count in the navbar and a company-wise list.",
+            ],
+          },
+          {
+            title: "Recycle bin",
+            bullets: [
+              "Deleted events are soft-deleted and can be restored, permanently deleted, or batch-emptied.",
+            ],
+          },
+          {
+            title: "Admin modules",
+            bullets: [
+              "Staff management and monthly trainer workload stats (events attended and total hours).",
+              "Full management of training centers (address and capacity) and courses (name, duration, validity).",
+            ],
+          },
+          {
+            title: "Access and usability",
+            bullets: [
+              "Firebase email/password login with admin and viewer roles, password reset, and a change-password flow with re-authentication.",
+              "Dark and light themes, with a responsive mobile navigation drawer.",
+            ],
+          },
+        ],
+      },
+    ],
+    highlights: [
+      "Real-time collaboration: every user sees schedule changes instantly.",
+      "Scheduling rules that account for travel time and venue capacity, preventing double-booking.",
+    ],
+  },
+  {
+    slug: "smart-renovation",
+    company: "Acusync Technologies",
+    title: "Smart Renovation – Luxury Design & Fit-Out Website with Custom CMS",
+    cardDescription:
+      "A corporate website and custom CMS for a Dubai luxury interior design and renovation studio, with room-tagged project galleries, a queued image pipeline, and a database-driven SEO redirect engine.",
+    role: "Full Stack Developer",
+    techStack: [
+      "Laravel 13",
+      "PHP 8.3",
+      "React 18",
+      "TypeScript",
+      "Inertia.js",
+      "Tailwind CSS",
+      "Vite",
+      "MySQL",
+      "Spatie Media Library",
+      "Spatie Permission",
+      "TipTap editor",
+      "PHPUnit",
+    ],
+    integrations: [],
+    liveUrl: "https://smartrenovation.acusync.net/",
+    liveLabel: "smartrenovation.acusync.net",
+    overview:
+      "Smart Renovation is a Dubai-based luxury interior design, turnkey renovation, and fit-out studio. I built a fast, SEO-friendly public website together with a complete custom admin CMS, so the client can manage projects, galleries, services, articles, press releases, awards, reviews, redirects, and contact leads without developer help. The migration preserved the existing SEO structure.",
+    featureSections: [
+      {
+        heading: "Public website",
+        bullets: [
+          "Home page with a hero video, featured projects, an awards slider, client reviews, a 3-step renovation process, and WhatsApp and contact calls to action.",
+          "Works portfolio with filters for category, location, room type, and search, plus detailed project gallery pages.",
+          "Service pages, editorial articles, press coverage with downloadable PDFs, and curated collection pages.",
+          "Rate-limited contact form, a thank-you conversion page, a floating WhatsApp button, and Google Tag Manager and GA4 support configured from site settings.",
+        ],
+      },
+      {
+        heading: "Custom admin CMS",
+        bullets: [
+          "Dashboard showing published and draft counts, weekly and total leads, and recent content.",
+          "Dual gallery manager: each project has a public gallery and a hidden gallery, with image transfer between them, room-wise tagging, drag-and-drop ordering, and one-click cover promotion.",
+          "Management for categories, locations, services, articles, press items, collection items, awards, client reviews, static pages, and a leads inbox.",
+          "Role-based access for super-admin and editor roles.",
+          "Rich-text editor (TipTap) with image uploads and YouTube embeds, backed by server-side HTML sanitization.",
+        ],
+      },
+      {
+        heading: "Performance and SEO",
+        bullets: [
+          "Queued media pipeline: large, high-resolution photos are processed in the background into thumbnail, card, and large versions.",
+          "Dynamic XML sitemap and JSON-LD structured data.",
+          "Database-driven 301/302/307/308 redirect engine, so old URLs keep working and search rankings are preserved.",
+          "Legacy SEO URLs from the previous site kept intact.",
+        ],
+      },
+      {
+        heading: "Migration and quality",
+        bullets: [
+          "Custom Artisan commands imported legacy projects, services, articles, and room tags into the new CMS.",
+          "PHPUnit tests covering project CRUD, dual galleries, cover promotion, media uploads, the rich-text editor, redirects, authentication, and HTML sanitization.",
+        ],
+      },
+    ],
+    highlights: [],
+  },
+  {
+    slug: "mr-barni",
+    company: "Acusync Technologies",
+    title: "Mr. Barni – UAE Real Estate Marketplace",
+    cardDescription:
+      "A multi-role UAE property marketplace for agencies, agents, sellers, investors, and buyers, with verified listings, a lead CRM, and an admin moderation panel.",
+    role: "Full Stack Developer",
+    techStack: [
+      "Laravel 13",
+      "PHP 8.3",
+      "React 18",
+      "TypeScript",
+      "Inertia.js",
+      "Tailwind CSS",
+      "MySQL",
+      "Spatie Permission",
+      "TipTap",
+      "Google2FA",
+      "Vite PWA",
+    ],
+    integrations: [],
+    overview:
+      "Mr. Barni is a Dubai-focused real estate marketplace and multi-role property portal. Public visitors search and filter properties and send inquiries, while agencies, agents, sellers, investors, buyers, and admins each get their own workflows and dashboards.",
+    featureSections: [
+      {
+        heading: "Public marketplace",
+        bullets: [
+          "Featured and latest listings with multi-filter search by transaction type (sale or rent), category (residential, off-plan, commercial, land), emirate, price range, bedrooms, and sorting. Similar properties appear on each detail page.",
+          "UAE-specific listing fields: AED pricing, RERA permit and broker numbers, off-plan details (developer, project, completion date, payment plan), commercial subtypes, and land zoning, with a Google Maps embed.",
+          "Verification badges for approved agencies, agents, sellers, and RERA details.",
+          "Lead capture through a rate-limited inquiry form and WhatsApp click tracking.",
+          "Favorites and saved searches for logged-in users.",
+        ],
+      },
+      {
+        heading: "Accounts and security",
+        bullets: [
+          "6-digit email verification, role selection after signup, and a role-specific onboarding form for each user type.",
+          "Two-factor authentication (TOTP with recovery codes) for admins.",
+          "Security headers, HTML sanitization, and ownership documents stored privately so only the owner or an admin can open them.",
+        ],
+      },
+      {
+        heading: "Listing management",
+        bullets: [
+          "Multi-step listing form with a rich-text description, ordered photos and videos, and ownership proof documents.",
+          "Staged change requests: edits to a published listing don’t go live immediately. They are saved as a change request and applied after admin approval.",
+        ],
+      },
+      {
+        heading: "Agency, agent, and seller portals",
+        bullets: [
+          "Role dashboards with listing and lead counts, status charts, and 30-day activity.",
+          "Lead inbox with filters, a status pipeline (new, contacted, qualified, closed), notes, and direct email replies.",
+          "Agencies can view and manage their linked agents.",
+        ],
+      },
+      {
+        heading: "Investor portal (foundation)",
+        bullets: [
+          "Investor preferences (goal, budget, risk level) and a property watchlist with statuses (watching, shortlisted, portfolio), target yield, and notes.",
+        ],
+      },
+      {
+        heading: "Admin panel",
+        bullets: [
+          "KPI dashboard with 30-day charts for signups, listings, and leads.",
+          "User, role, and permission management, including suspension and two-factor reset.",
+          "Approval workflows for agency, agent, and seller verification.",
+          "Listing moderation with a side-by-side comparison of the live and proposed versions of an edited listing.",
+          "Filterable audit log of 22 tracked actions and live previews of system email templates.",
+        ],
+      },
+      {
+        heading: "Installable web app",
+        bullets: [
+          "Progressive web app support with a service worker, offline fallback page, and an install prompt.",
+        ],
+      },
+    ],
+    highlights: [],
+    screenshots: mrBarniScreenshots,
   },
 ];
 
